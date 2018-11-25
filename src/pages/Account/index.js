@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { AuthUserContext } from '../Session';
 import { PasswordForgetForm } from '../PasswordForget';
-import PasswordChangeForm from '../PasswordChange';
-import { withAuthorization } from '../Session';
+import PasswordChangeForm from '../../components/PasswordChange';
+import { AuthUserContext, withAuthorization } from '../../hocs/Session';
 
 const AccountPage = () => (
   <AuthUserContext.Consumer>
@@ -17,6 +16,6 @@ const AccountPage = () => (
   </AuthUserContext.Consumer>
 );
 
-const authCondition = authUser => !!authUser;
+const authCondition = authUser => authUser != null;
 
 export default withAuthorization(authCondition)(AccountPage);

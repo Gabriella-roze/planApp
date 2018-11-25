@@ -1,21 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import Navigation from '../Navigation';
-import LandingPage from '../Landing';
-import SignUpPage from '../SignUp';
-import SignInPage from '../SignIn';
-import PasswordForgetPage from '../PasswordForget';
-import HomePage from '../Home';
-import AccountPage from '../Account';
-import AdminPage from '../Admin';
+import Navigation from './components/Navigation';
+import LandingPage from './pages/Landing';
+import SignUpPage from './pages/SignUp';
+import SignInPage from './pages/SignIn';
+import PasswordForgetPage from './pages/PasswordForget';
+import HomePage from './pages/Home';
+import AccountPage from './pages/Account';
+import AdminPage from './pages/Admin';
 
-import * as ROUTES from '../../constants/routes';
-import { withAuthentication } from '../Session';
+import * as ROUTES from './constants/routes';
+import { withAuthentication } from './hocs/Session';
+import { GlobalStateProvider } from './hocs/GlobalState';
 
 const App = () => (
   <Router>
-    <div>
+    <GlobalStateProvider>
       <Navigation />
 
       <hr />
@@ -31,7 +32,7 @@ const App = () => (
       <Route exact path={ROUTES.HOME} component={HomePage} />
       <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
       <Route exact path={ROUTES.ADMIN} component={AdminPage} />
-    </div>
+    </GlobalStateProvider>
   </Router>
 );
 
