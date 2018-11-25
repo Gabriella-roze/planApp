@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { compose } from 'recompose';
+
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
-
 
 const SignUpPage = () => (
   <div>
@@ -28,7 +27,6 @@ class SignUpFormBase extends Component {
   }
 
   onSubmit = event => {
-    event.preventDefault();
     const { email, passwordOne } = this.state;
 
     this.props.firebase
@@ -40,6 +38,8 @@ class SignUpFormBase extends Component {
       .catch(error => {
         this.setState({ error });
       });
+
+    event.preventDefault();
   };
 
   onChange = event => {
@@ -47,7 +47,19 @@ class SignUpFormBase extends Component {
   };
 
   render() {
-    const { username, email, passwordOne, passwordTwo, error } = this.state;
+    const {
+      username,
+      email,
+      passwordOne,
+      passwordTwo,
+      error,
+    } = this.state;
+
+    const isInvalid =
+      passwordOne !== passwordTwo ||
+      passwordOne === '' ||
+      email === '' ||
+      username === '';
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -79,7 +91,9 @@ class SignUpFormBase extends Component {
           type="password"
           placeholder="Confirm Password"
         />
-        <button type="submit">Sign Up</button>
+        <button disabled={isInvalid} type="submit">
+          Sign Up
+        </button>
 
         {error && <p>{error.message}</p>}
       </form>
@@ -93,10 +107,7 @@ const SignUpLink = () => (
   </p>
 );
 
-const SignUpForm = compose(
-  withRouter,
-  withFirebase,
-)(SignUpFormBase);
+const SignUpForm = withRouter(withFirebase(SignUpFormBase));
 
 export default SignUpPage;
 
