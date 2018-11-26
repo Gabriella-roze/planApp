@@ -2,6 +2,7 @@ import React from 'react';
 
 import AuthUserContext from './context';
 import { withFirebase } from '../Firebase';
+import { withGlobalState } from '../GlobalState';
 
 const withAuthentication = Component => {
   class WithAuthentication extends React.Component {
@@ -13,8 +14,17 @@ const withAuthentication = Component => {
       };
     }
 
-    componentDidMount() {
-      console.log('componentDidMount @ withAuthentication: ', this.state);
+    async componentDidMount() {
+      console.log('componentDidMount @ withAuthentication: ', this.props);
+
+      if (this.props.globalState && !this.props.globalState.user && this.state.authUser) {
+        console.log('Getting user from authUser: ', this.state.authUser);
+
+        const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
+        console.log('Got the user: ', dbUser);
+        this.props.globalState.changeUser(dbUser);
+      }
+
       this.listener = this.props.firebase.auth.onAuthStateChanged(
         authUser => {
           console.log('authUser @ withAuthentication: ', authUser);
@@ -26,6 +36,7 @@ const withAuthentication = Component => {
     }
 
     componentWillUnmount() {
+      console.log('componentWillUnmount @ withAuthentication: ', this.props);
       this.listener();
     }
 
@@ -38,7 +49,7 @@ const withAuthentication = Component => {
     }
   }
 
-  return withFirebase(WithAuthentication);
+  return withGlobalState(withFirebase(WithAuthentication));
 };
 
 export default withAuthentication;

@@ -10,7 +10,7 @@ import { withGlobalState } from '../../hocs/GlobalState';
 const Navigation = (props) => (
   <div>
     { 
-      props.globalState.user 
+      props.globalState && props.globalState.user 
         ? <NavigationAuth /> 
         : <NavigationNonAuth /> 
     }
