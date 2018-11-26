@@ -11,6 +11,9 @@ class GlobalStateProvider extends React.Component {
       num: 0,
       num2: 0,
       changeNum: this.changeNum,
+
+      user: null,
+      changeUser: this.changeUser
     };
   }
 
@@ -18,6 +21,7 @@ class GlobalStateProvider extends React.Component {
   * METHODS TO CHANGE GLOBAL STATE
   */
   changeNum = num => this.setState({ num });
+  changeUser = user => this.setState({ user });
 
   render() {
     return (

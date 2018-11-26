@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 import { withFirebase } from '../../hocs/Firebase';
+import { withGlobalState } from '../../hocs/GlobalState';
 import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -12,7 +14,7 @@ const SignUpPage = () => (
 );
 
 const INITIAL_STATE = {
-  username: '',
+  name: '',
   email: '',
   passwordOne: '',
   passwordTwo: '',
@@ -26,20 +28,28 @@ class SignUpFormBase extends Component {
     this.state = { ...INITIAL_STATE };
   }
 
-  onSubmit = event => {
-    const { email, passwordOne } = this.state;
-
-    this.props.firebase
-      .doCreateUserWithEmailAndPassword(email, passwordOne)
-      .then(authUser => {
-        this.setState({ ...INITIAL_STATE });
-        this.props.history.push(ROUTES.HOME);
-      })
-      .catch(error => {
-        this.setState({ error });
-      });
-
+  onSubmit = async (event) => {
     event.preventDefault();
+    const { name, email, passwordOne } = this.state;
+
+    try {
+      // Create a user in the firebase - authentication system
+      const authUser = await this.props.firebase.doCreateUserWithEmailAndPassword(email, passwordOne);
+
+      // Create a user document in firebase - firestore database
+      await this.props.firebase.createUser({ name, email, uid: authUser.user.uid });
+
+      // Update the globalState with the new user
+      this.props.globalState.changeUser({ name, email, uid: authUser.user.uid });
+
+      // Clear the form and redirect to home page
+      this.setState({ ...INITIAL_STATE });
+      this.props.history.push(ROUTES.HOME);
+
+    } catch (error) {
+      console.error("Error @ signup: ", error);
+      this.setState({ error });
+    }
   };
 
   onChange = event => {
@@ -47,25 +57,19 @@ class SignUpFormBase extends Component {
   };
 
   render() {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-      error,
-    } = this.state;
+    const { name, email, passwordOne, passwordTwo, error } = this.state;
 
     const isInvalid =
       passwordOne !== passwordTwo ||
       passwordOne === '' ||
       email === '' ||
-      username === '';
+      name === '';
 
     return (
       <form onSubmit={this.onSubmit}>
         <input
-          name="username"
-          value={username}
+          name="name"
+          value={name}
           onChange={this.onChange}
           type="text"
           placeholder="Full Name"
@@ -107,7 +111,13 @@ const SignUpLink = () => (
   </p>
 );
 
-const SignUpForm = withRouter(withFirebase(SignUpFormBase));
+// const SignUpForm = withRouter(withFirebase(SignUpFormBase));
+
+const SignUpForm = compose(
+  withRouter,
+  withFirebase,
+  withGlobalState
+)(SignUpFormBase);
 
 export default SignUpPage;
 

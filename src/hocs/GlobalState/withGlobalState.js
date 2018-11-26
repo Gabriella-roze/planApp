@@ -9,7 +9,7 @@ const withGlobalState = (Component) => {
     // Notice that we pass through any additional props as well
     return (
       <GlobalStateContext.Consumer>
-        {state => <Component {...props} state={state} />}
+        {state => <Component {...props} globalState={state} />}
       </GlobalStateContext.Consumer>
     );
   };

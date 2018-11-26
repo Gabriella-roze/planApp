@@ -9,8 +9,8 @@ const HomePage = (props) => {
     <div>
       <h1>Home Page</h1>
       <p>The Home Page is accessible by every signed in user.</p>
-      <p>GlobalState num: {props.state.num}</p>
-      <button onClick={() => props.state.changeNum(49)}>Change GlobalState num</button>
+      <p>GlobalState num: {props.globalState.num}</p>
+      <button onClick={() => props.globalState.changeNum(49)}>Change GlobalState num</button>
     </div>
   );
 }

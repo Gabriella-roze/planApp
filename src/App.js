@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Navigation from './components/Navigation';
@@ -11,29 +11,60 @@ import AccountPage from './pages/Account';
 import AdminPage from './pages/Admin';
 
 import * as ROUTES from './constants/routes';
-import { withAuthentication } from './hocs/Session';
-import { GlobalStateProvider } from './hocs/GlobalState';
+import { withFirebase } from './hocs/Firebase';
+import { withGlobalState } from './hocs/GlobalState';
 
-const App = () => (
-  <Router>
-    <GlobalStateProvider>
-      <Navigation />
+class App extends Component {
 
-      <hr />
+  constructor(props) {
+    super(props);
+  
+    this.state = {
+      isAuthenticating: true,
+      isAuthenticated: false,
+    };
+  }
 
-      <Route exact path={ROUTES.LANDING} component={LandingPage} />
-      <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
-      <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
-      <Route
-        exact
-        path={ROUTES.PASSWORD_FORGET}
-        component={PasswordForgetPage}
-      />
-      <Route exact path={ROUTES.HOME} component={HomePage} />
-      <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
-      <Route exact path={ROUTES.ADMIN} component={AdminPage} />
-    </GlobalStateProvider>
-  </Router>
-);
+  componentDidMount() {
+    console.log('componentDidMount @ App.js: ', this.props);
+    this.listener = this.props.firebase.auth.onAuthStateChanged(
+      authUser => {
+        console.log('authUser @ App.js: ', authUser);
 
-export default withAuthentication(App);
+        if (authUser) {
+          this.props.firebase.getUser(authUser.uid)
+          .then(dbUser => {
+            this.props.globalState.changeUser(dbUser);
+          })
+          .catch(err => console.log(err))
+        }
+      }
+    );
+  }
+
+  componentWillUnmount() {
+    this.listener();
+  }
+
+  render() {
+    return (
+      <Router>
+        <div>
+          <Navigation />
+
+          <hr />
+
+          <Route exact path={ROUTES.LANDING} component={LandingPage} />
+          <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
+          <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
+          <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
+          <Route exact path={ROUTES.HOME} component={HomePage} />
+          <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
+          <Route exact path={ROUTES.ADMIN} component={AdminPage} />
+          </div>
+      </Router>
+    );
+  }
+}
+
+export default withGlobalState(withFirebase(App));

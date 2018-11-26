@@ -1,11 +1,17 @@
 import React from 'react';
 
 import { withFirebase } from '../../hocs/Firebase';
+import { withGlobalState } from '../../hocs/GlobalState';
 
-const SignOutButton = ({ firebase }) => (
-  <button type="button" onClick={firebase.doSignOut}>
+const SignoutEverywere = (firebase, globalState) => {
+  firebase.doSignOut();
+  globalState.changeUser(null);
+}
+
+const SignOutButton = (props) => (
+  <button type="button" onClick={() => SignoutEverywere(props.firebase, props.globalState)}>
     Sign Out
   </button>
 );
 
-export default withFirebase(SignOutButton);
+export default withGlobalState(withFirebase(SignOutButton));

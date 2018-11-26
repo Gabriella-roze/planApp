@@ -4,15 +4,16 @@ import { Link } from 'react-router-dom';
 import SignOutButton from '../SignOut';
 import * as ROUTES from '../../constants/routes';
 
-import { AuthUserContext } from '../../hocs/Session';
+// import { AuthUserContext } from '../../hocs/Session';
+import { withGlobalState } from '../../hocs/GlobalState';
 
-const Navigation = () => (
+const Navigation = (props) => (
   <div>
-    <AuthUserContext.Consumer>
-      {authUser =>
-        authUser ? <NavigationAuth /> : <NavigationNonAuth />
-      }
-    </AuthUserContext.Consumer>
+    { 
+      props.globalState.user 
+        ? <NavigationAuth /> 
+        : <NavigationNonAuth /> 
+    }
   </div>
 );
 
@@ -26,6 +27,9 @@ const NavigationAuth = () => (
     </li>
     <li>
       <Link to={ROUTES.ACCOUNT}>Account</Link>
+    </li>
+    <li>
+      <Link to={ROUTES.ADMIN}>Admin</Link>
     </li>
     <li>
       <SignOutButton />
@@ -44,4 +48,4 @@ const NavigationNonAuth = () => (
   </ul>
 );
 
-export default Navigation;
+export default withGlobalState(Navigation);

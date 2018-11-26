@@ -5,6 +5,7 @@ import { compose } from 'recompose';
 import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../../hocs/Firebase';
+import { withGlobalState } from '../../hocs/GlobalState';
 import * as ROUTES from '../../constants/routes';
 
 const SignInPage = () => (
@@ -29,20 +30,24 @@ class SignInFormBase extends Component {
     this.state = { ...INITIAL_STATE };
   }
 
-  onSubmit = event => {
+  onSubmit = async (event) => {
+    event.preventDefault();
     const { email, password } = this.state;
 
-    this.props.firebase
-      .doSignInWithEmailAndPassword(email, password)
-      .then(() => {
-        this.setState({ ...INITIAL_STATE });
-        this.props.history.push(ROUTES.HOME);
-      })
-      .catch(error => {
-        this.setState({ error });
-      });
+    try {
+      const authUser = await this.props.firebase.doSignInWithEmailAndPassword(email, password);
 
-    event.preventDefault();
+      const dbUser = await this.props.firebase.getUser(authUser.user.uid);
+
+      if (dbUser) {
+        this.props.globalState.changeUser(dbUser);
+      }
+
+      this.setState({ ...INITIAL_STATE });
+      this.props.history.push(ROUTES.HOME);
+    } catch (error) {
+      this.setState({ error });
+    }
   };
 
   onChange = event => {
@@ -83,6 +88,7 @@ class SignInFormBase extends Component {
 const SignInForm = compose(
   withRouter,
   withFirebase,
+  withGlobalState
 )(SignInFormBase);
 
 export default SignInPage;

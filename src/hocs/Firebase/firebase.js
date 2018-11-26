@@ -1,5 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/database';
+import 'firebase/firestore';
 
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -14,7 +16,14 @@ class Firebase {
   constructor() {
     app.initializeApp(config);
 
+    // Initialize Authentication through Firebase
     this.auth = app.auth();
+
+    // Initialize Cloud Firestore through Firebase
+    this.db = app.firestore();
+
+    // Disable deprecated features of Firestore
+    this.db.settings({ timestampsInSnapshots: true });
   }
 
   // *** Auth API ***
@@ -25,12 +34,40 @@ class Firebase {
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
 
-  doSignOut = () => this.auth.signOut();
+  doSignOut = () => { 
+    this.auth.signOut();
+  };
 
   doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
 
-  doPasswordUpdate = password =>
-    this.auth.currentUser.updatePassword(password);
+  doPasswordUpdate = password => this.auth.currentUser.updatePassword(password);
+
+  // *** User API ***
+  createUser = user => {
+    return this.db.collection("users").doc(user.uid).set({
+      uid: user.uid,
+      email: user.email,
+      name: user.name
+    });
+  }
+
+  getUser = async (userId) => {
+    const docRef = this.db.collection("users").doc(userId);
+
+    try {
+      const user = await docRef.get();
+    
+      if (user.exists) {
+        return user.data();
+      }
+      else {
+        return null;
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      return null;
+    }
+  }
 }
 
 export default Firebase;
