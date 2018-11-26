@@ -38,20 +38,21 @@ class App extends React.Component {
 
         if (authUser) {
           this.setState({ authUser });
+          this.props.globalState.openFirestoreConnection(authUser.uid);
 
-          if (this.props.globalState && !this.props.globalState.user && this.state.authUser) {
+          // if (this.props.globalState && !this.props.globalState.user && this.state.authUser) {
       
-            console.log('APP.JS: No user at globalState - fetching user from DB');
-            const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
+            // console.log('APP.JS: No user at globalState - fetching user from DB');
+            // const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
 
-            console.log('APP.JS: User fetched from db: ', dbUser);
+            // console.log('APP.JS: User fetched from db: ', dbUser);
             this.setState({ isAuthenticated: true, isAuthenticating: false }, () => {
-              console.log('APP.JS: Saving the dbUser to globalState and changing isAuthenticated: true');
-              this.props.globalState.changeUser(dbUser);
-              this.props.globalState.authenticate();              
+              // console.log('APP.JS: Saving the dbUser to globalState and changing isAuthenticated: true');
+              // this.props.globalState.changeUser(dbUser);
+              // this.props.globalState.authenticate();              
             });
           }
-        }
+        // }
         else {
           this.setState({ authUser: null });
           this.props.globalState.changeUser(null);
@@ -66,6 +67,7 @@ class App extends React.Component {
 
   componentWillUnmount() {
     console.log('componentWillUnmount @ App: ', this.props);
+    // Removing the authState listener
     this.listener();
   }
 

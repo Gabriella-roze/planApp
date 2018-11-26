@@ -21,6 +21,10 @@ class GlobalStateProvider extends React.Component {
     super(props);
 
     this.state = {
+      initialize: this.initialize,
+      firestoreDb: null,
+      firestoreUserListener: null,
+
       test: 'test from state',
       num: 0,
       num2: 0,
@@ -32,7 +36,8 @@ class GlobalStateProvider extends React.Component {
 
       user: null,
       changeUser: this.changeUser,
-      firestoreUserListener: null
+
+      openFirestoreConnection: this.openFirestoreConnection
     };
   }
 
@@ -44,7 +49,16 @@ class GlobalStateProvider extends React.Component {
     // this.auth = app.auth();
 
     // Initialize Cloud Firestore through Firebase
-    this.db = app.firestore();
+    const firestoreDb = app.firestore();
+    this.setState({ firestoreDb });
+
+    // If authenticated but no user details, fetch user details
+    // if (this.state.isAuthenticated && !this.state.user) {
+
+    // }
+
+    // If no connection - open it
+    // if (!this.listener) { this.openFirestoreConnection() }
 
 
 
@@ -52,29 +66,38 @@ class GlobalStateProvider extends React.Component {
     // this.db.settings({ timestampsInSnapshots: true });
   }
 
-  openFirestoreConnection(userUid) {
-    console.log('GLOBALSTATEPROVIDER:JS: Opening firestore connection');
+  openFirestoreConnection = (userUid) => {
+    console.log('GLOBALSTATEPROVIDER:JS: Opening firestore connection: ', this.state.firestoreDb);
+    if (!userUid) { 
+      console.log('Stopping cause no userUid')
+      return; 
+    }
 
-    console.log('this.listener: ', this.listener);
+    if (this.state.firestoreUserListener) {
+      console.log('Stopping cause listener already exists');
+      return;
+    }
 
-    if (this.listener) { return; }
+    console.log('Really opening the firestore connection: ', userUid, this.state.firestoreDb);
 
-    console.log('Really opening the firestore connection');
+    console.log('firestoreDb: ', this.state.firestoreDb);
 
-    this.listener = this.db.collection("users").doc('3JyUM8A1luXtCZurr080mtnsNqA2').onSnapshot((doc) => {
+    const firestoreUserListener = this.state.firestoreDb.collection("users").doc(userUid).onSnapshot((doc) => {
       console.log('GLOBALSTATEPROVIDER:JS: Updated user from DB');
       const user = doc.data();
       this.changeUser(user);
     });
+
+    this.setState({ firestoreUserListener });
   }
 
-  closeFirestoreConnection() {
+  closeFirestoreConnection = () => {
    console.log('GLOBALSTATEPROVIDER:JS: Closing firestore connection');
-   console.log('this.listener: ', this.listener);
-   if (!this.listener) { return; }
+   console.log('this.listener: ', this.this.state.firestoreUserListener);
+   if (!this.state.firestoreUserListener) { return; }
    console.log('Really closing firestore connection');
 
-   this.listener();
+   this.this.state.firestoreUserListener();
    this.setState({ firestoreUserListener: null })
   }
 
@@ -84,7 +107,7 @@ class GlobalStateProvider extends React.Component {
   authenticate = () => this.setState({ isAuthenticated: true });
   unauthenticate = () => this.setState({ isAuthenticated: false });
 
-  changeUser = user => {
+  changeUser = (user) => {
     console.log('GLOBALSTATEPROVIDER:JS: changing the user @ globalState with: ', user);
     this.setState({ user });
 
