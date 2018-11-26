@@ -26,11 +26,16 @@ const withAuthentication = Component => {
       }
 
       this.listener = this.props.firebase.auth.onAuthStateChanged(
-        authUser => {
-          console.log('authUser @ withAuthentication: ', authUser);
-          authUser
-            ? this.setState({ authUser })
-            : this.setState({ authUser: null });
+        async (authUser) => {
+          console.log('authUser @ withAuthentication @ listener: ', authUser);
+          console.log('this.props: ', this.props);
+
+          if (authUser) {
+            this.setState({ authUser });
+          }
+          else {
+            this.setState({ authUser: null });
+          }
         },
       );
     }
@@ -49,7 +54,7 @@ const withAuthentication = Component => {
     }
   }
 
-  return withGlobalState(withFirebase(WithAuthentication));
+  return withFirebase(WithAuthentication);
 };
 
 export default withAuthentication;

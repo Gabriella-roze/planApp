@@ -42,9 +42,9 @@ class SignInFormBase extends Component {
       if (dbUser) {
         this.props.globalState.changeUser(dbUser);
       }
-
-      this.setState({ ...INITIAL_STATE });
-      this.props.history.push(ROUTES.HOME);
+      else {
+        console.log('Error getting the user from DB');
+      }
     } catch (error) {
       this.setState({ error });
     }

@@ -2,20 +2,22 @@ import React from 'react';
 
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../../components/PasswordChange';
-import { AuthUserContext, withAuthorization } from '../../hocs/Session';
+import { withAuthorization } from '../../hocs/Session';
+import { withGlobalState } from '../../hocs/GlobalState';
+import { defaultProps } from 'recompose';
 
-const AccountPage = () => (
-  <AuthUserContext.Consumer>
-    {authUser => (
-      <div>
-        <h1>Account: {authUser.email}</h1>
-        <PasswordForgetForm />
-        <PasswordChangeForm />
-      </div>
-    )}
-  </AuthUserContext.Consumer>
-);
+const AccountPage = (props) => {
+  console.log('props @ AccountPage: ', props);
+
+  return (
+    <div>
+      <h1>Account: {props.globalState && props.globalState.user && props.globalState.user.email}</h1>
+      <PasswordForgetForm />
+      <PasswordChangeForm />
+    </div>
+  );
+}
 
 const authCondition = authUser => authUser != null;
 
-export default withAuthorization(authCondition)(AccountPage);
+export default withGlobalState(withAuthorization(authCondition)(AccountPage));

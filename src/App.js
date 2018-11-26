@@ -12,24 +12,100 @@ import AdminPage from './pages/Admin';
 
 import * as ROUTES from './constants/routes';
 import { withAuthentication } from './hocs/Session';
-import { GlobalStateProvider } from './hocs/GlobalState';
+import { GlobalStateProvider, withGlobalState } from './hocs/GlobalState';
+import { withFirebase } from './hocs/Firebase';
 
-const App = () => (
-  <Router>
-    <GlobalStateProvider>
-      <Navigation />
+import AuthenticatedRoute from './hocs/Session/AuthenticatedRoute';
+import UnauthenticatedRoute from './hocs/Session/UnauthenticatedRoute';
+import Routes from './routes/Routes';
 
-      <hr />
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-      <Route exact path={ROUTES.LANDING} component={LandingPage} />
-      <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
-      <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
-      <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
-      <Route exact path={ROUTES.HOME} component={HomePage} />
-      <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
-      <Route exact path={ROUTES.ADMIN} component={AdminPage} />
-    </GlobalStateProvider>
-  </Router>
-);
+    this.state = {
+      isAuthenticating: true,
+      isAuthenticated: false
+    };
+  }
 
-export default withAuthentication(App);
+  async componentDidMount() {
+
+    console.log('APP.JS: Adding a listener for AuthState changes: ', this.props);
+    this.listener = this.props.firebase.auth.onAuthStateChanged(
+      async (authUser) => {
+        console.log('APP.JS: AuthState changed - new authUser: ', authUser);
+
+        if (authUser) {
+          this.setState({ authUser });
+
+          if (this.props.globalState && !this.props.globalState.user && this.state.authUser) {
+      
+            console.log('APP.JS: No user at globalState - fetching user from DB');
+            const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
+
+            console.log('APP.JS: User fetched from db: ', dbUser);
+            this.setState({ isAuthenticated: true, isAuthenticating: false }, () => {
+              console.log('APP.JS: Saving the dbUser to globalState and changing isAuthenticated: true');
+              this.props.globalState.changeUser(dbUser);
+              this.props.globalState.authenticate();              
+            });
+          }
+        }
+        else {
+          this.setState({ authUser: null });
+          this.props.globalState.changeUser(null);
+          this.props.globalState.unauthenticate();
+          this.setState({ isAuthenticated: false, isAuthenticating: false })
+        }
+      },
+    );
+  }
+
+
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount @ App: ', this.props);
+    this.listener();
+  }
+
+  renderAuthenticating() {
+    return (
+      <div>
+        <h1>Loading...</h1>
+      </div>
+    )
+  }
+
+  render() {
+    if (this.state.isAuthenticating) { return this.renderAuthenticating(); }
+
+    const childProps = {
+      isAuthenticated: this.props.globalState.isAuthenticated
+    };
+
+    console.log('childProps passed to routes: ', childProps);
+
+    return (
+      <Router>
+        <div>
+          <Navigation isAuthenticated={childProps.isAuthenticated} />
+
+          <hr />
+
+          <Routes childProps={childProps} />
+          {/* <Route exact path={ROUTES.LANDING} component={LandingPage} />
+          <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
+          <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
+          <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
+          <Route exact path={ROUTES.HOME} component={HomePage} />
+          <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
+          <Route exact path={ROUTES.ADMIN} component={AdminPage} /> */}
+
+        </div>
+      </Router>
+    );
+  }
+}
+
+export default withGlobalState(withFirebase(App));

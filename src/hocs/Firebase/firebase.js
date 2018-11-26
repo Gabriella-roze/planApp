@@ -1,7 +1,10 @@
+import React from 'react';
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
+
+// import { withGlobalState } from '../GlobalState';
 
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -52,7 +55,14 @@ class Firebase {
   }
 
   getUser = async (userId) => {
+    console.log('FIREBASE.JS: getUser fired');
+
     const docRef = this.db.collection("users").doc(userId);
+
+    // // REALTIME UPDATES
+    // this.db.collection("users").doc(userId).onSnapshot(function(doc) {
+    //   console.log('FIREBASE.JS: Current user from DB: ', doc.data());
+    // });
 
     try {
       const user = await docRef.get();
@@ -71,3 +81,4 @@ class Firebase {
 }
 
 export default Firebase;
+

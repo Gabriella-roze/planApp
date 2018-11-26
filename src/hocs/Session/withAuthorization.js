@@ -14,50 +14,63 @@ const withAuthorization = condition => Component => {
 
       this.state = {
         authUser: null,
+        isAuthorized: false
       };
     }
 
     async componentDidMount() {
       console.log('componentDidMount @ withAuthorization: ', this.props);
 
-      if (!this.props.globalState.user && this.state.authUser) {
-        console.log('Getting user from authUser: ', this.state.authUser);
-
-        const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
-        console.log('Got the user: ', dbUser);
-        this.props.globalState.changeUser(dbUser);
+      if (this.props.globalState.user) { 
+        this.setState({ isAuthorized: true });
       }
-      this.listener = this.props.firebase.auth.onAuthStateChanged(
-        authUser => {
-          if (!condition(authUser)) {
-            this.props.history.push(ROUTES.SIGN_IN);
-          } else {
-            this.setState({ authUser });
-          }
-        },
-      );
+      else {
+        this.setState({ isAuthorized: false });
+      }
+
+      // this.listener = this.props.firebase.auth.onAuthStateChanged(
+      //   async (authUser) => {
+      //     if (!condition(authUser)) {
+      //       this.props.history.push(ROUTES.SIGN_IN);
+      //     } else {
+      //       this.setState({ authUser });
+
+      //       // console.log('this.props: ', this.props);
+            
+      //       // if (!this.props.globalState.user && this.state.authUser) {
+      //       //   console.log('Getting user from authUser: ', this.state.authUser);
+      
+      //       //   const dbUser = await this.props.firebase.getUser(this.state.authUser.uid);
+      //       //   console.log('Got the user: ', dbUser);
+      //       //   this.props.globalState.changeUser(dbUser);
+      //       // }
+            
+      //     }
+      //  },
+      // );
     }
 
     componentWillUnmount() {
       console.log('componentWillUnmount @ withAuthorization: ', this.props);
-      this.listener();
+      // this.listener();
     }
 
     render() {
       return (
-        <AuthUserContext.Consumer>
-          {authUser =>
-            condition(authUser) ? <Component {...this.props} /> : null
+        <div>
+          { this.state.isAuthorized 
+            ? <Component {...this.props} />
+            : <p>Not authorized!</p>
           }
-        </AuthUserContext.Consumer>
+        </div>
       );
     }
   }
 
   return compose(
-    withRouter,
+    // withRouter,
     withGlobalState,
-    withFirebase,
+   //  withFirebase,
   )(WithAuthorization);
 };
 

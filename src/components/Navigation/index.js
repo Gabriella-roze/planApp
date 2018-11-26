@@ -7,15 +7,18 @@ import * as ROUTES from '../../constants/routes';
 // import { AuthUserContext } from '../../hocs/Session';
 import { withGlobalState } from '../../hocs/GlobalState';
 
-const Navigation = (props) => (
-  <div>
-    { 
-      props.globalState && props.globalState.user 
-        ? <NavigationAuth /> 
-        : <NavigationNonAuth /> 
-    }
-  </div>
-);
+const Navigation = (props) => {
+  console.log('props @ Navigation: ', props);
+  return (
+    <div>
+      { 
+        props.isAuthenticated
+          ? <NavigationAuth /> 
+          : <NavigationNonAuth /> 
+      }
+    </div>
+  );
+}
 
 const NavigationAuth = () => (
   <ul>
