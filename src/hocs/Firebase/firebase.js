@@ -1,5 +1,4 @@
-import React from 'react';
-import app from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
@@ -15,15 +14,17 @@ const config = {
   messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
 };
 
+console.log('Initializing firebase');
+
 class Firebase {
   constructor() {
-    app.initializeApp(config);
+    firebase.initializeApp(config);
 
     // Initialize Authentication through Firebase
-    this.auth = app.auth();
+    this.auth = firebase.auth();
 
     // Initialize Cloud Firestore through Firebase
-    this.db = app.firestore();
+    this.db = firebase.firestore();
 
     // Disable deprecated features of Firestore
     this.db.settings({ timestampsInSnapshots: true });
@@ -55,14 +56,7 @@ class Firebase {
   }
 
   getUser = async (userId) => {
-    console.log('FIREBASE.JS: getUser fired');
-
     const docRef = this.db.collection("users").doc(userId);
-
-    // // REALTIME UPDATES
-    // this.db.collection("users").doc(userId).onSnapshot(function(doc) {
-    //   console.log('FIREBASE.JS: Current user from DB: ', doc.data());
-    // });
 
     try {
       const user = await docRef.get();

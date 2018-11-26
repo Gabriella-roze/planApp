@@ -1,7 +1,7 @@
 import React from 'react';
 import { compose } from 'recompose';
 
-import { withAuthorization } from '../../hocs/Session';
+// import { withAuthorization } from '../../hocs/Session';
 import { withGlobalState } from '../../hocs/GlobalState';
 
 const HomePage = (props) => {
@@ -16,7 +16,7 @@ const HomePage = (props) => {
   );
 }
 
-const condition = authUser => authUser != null;
+// const condition = authUser => authUser != null;
 
 export default compose(
   // withAuthorization(condition),

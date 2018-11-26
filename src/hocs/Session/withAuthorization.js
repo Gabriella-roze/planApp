@@ -1,10 +1,10 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import AuthUserContext from './context';
-import { withFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
+// import AuthUserContext from './context';
+// import { withFirebase } from '../Firebase';
+// import * as ROUTES from '../../constants/routes';
 import { withGlobalState } from '../GlobalState';
 
 const withAuthorization = condition => Component => {

@@ -6,7 +6,7 @@ import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../../hocs/Firebase';
 import { withGlobalState } from '../../hocs/GlobalState';
-import * as ROUTES from '../../constants/routes';
+// import * as ROUTES from '../../constants/routes';
 
 const SignInPage = () => (
   <div>
@@ -37,14 +37,6 @@ class SignInFormBase extends Component {
     try {
       const authUser = await this.props.firebase.doSignInWithEmailAndPassword(email, password);
 
-      const dbUser = await this.props.firebase.getUser(authUser.user.uid);
-
-      if (dbUser) {
-        this.props.globalState.changeUser(dbUser);
-      }
-      else {
-        console.log('Error getting the user from DB');
-      }
     } catch (error) {
       this.setState({ error });
     }
