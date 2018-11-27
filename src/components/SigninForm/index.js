@@ -1,49 +1,38 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import { SignUpLink } from '../SignUp';
-import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../../hocs/Firebase';
 import { withGlobalState } from '../../hocs/GlobalState';
-// import * as ROUTES from '../../constants/routes';
 
-const SignInPage = () => (
-  <div>
-    <h1>SignIn</h1>
-    <SignInForm />
-    <PasswordForgetLink />
-    <SignUpLink />
-  </div>
-);
-
-const INITIAL_STATE = {
-  email: '',
-  password: '',
-  error: null,
-};
-
-class SignInFormBase extends Component {
+class SigninForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { ...INITIAL_STATE };
+    this.state = {
+      email: '',
+      password: '',
+      error: ''
+    };
   }
+
+  onChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
+  invalidForm = () => this.state.password === '' || this.state.email === ''
 
   onSubmit = async (event) => {
     event.preventDefault();
+    this.props.globalState.startLoading();
+
     const { email, password } = this.state;
 
     try {
-      const authUser = await this.props.firebase.doSignInWithEmailAndPassword(email, password);
+      await this.props.firebase.doSignInWithEmailAndPassword(email, password);
 
     } catch (error) {
       this.setState({ error });
     }
-  };
-
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
   };
 
   render() {
@@ -77,12 +66,7 @@ class SignInFormBase extends Component {
   }
 }
 
-const SignInForm = compose(
-  withRouter,
+export default compose(
   withFirebase,
   withGlobalState
-)(SignInFormBase);
-
-export default SignInPage;
-
-export { SignInForm };
+)(SigninForm);

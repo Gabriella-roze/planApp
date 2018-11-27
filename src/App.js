@@ -1,48 +1,36 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import Navigation from './components/Navigation';
-// import LandingPage from './pages/Landing';
-// import SignUpPage from './pages/SignUp';
-// import SignInPage from './pages/SignIn';
-// import PasswordForgetPage from './pages/PasswordForget';
-// import HomePage from './pages/Home';
-// import AccountPage from './pages/Account';
-// import AdminPage from './pages/Admin';
-
-// import * as ROUTES from './constants/routes';
-// import { withAuthentication } from './hocs/Session';
 import { withGlobalState } from './hocs/GlobalState';
 import { withFirebase } from './hocs/Firebase';
 
-// import AuthenticatedRoute from './hocs/Session/AuthenticatedRoute';
-// import UnauthenticatedRoute from './hocs/Session/UnauthenticatedRoute';
+import Navigation from './components/Navigation';
 import Routes from './routes/Routes';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {};
-  }
 
   componentDidMount() {
-
-    console.log('APP.JS: Adding a listener for AuthState changes: ', this.props);
     this.props.globalState.startLoading();
 
-    this.unsubscribe = this.props.firebase.auth.onAuthStateChanged(authUser => {
-      console.log('APP.JS: AuthState changed - new authUser: ', authUser);
-
+    /**
+     * Start a two-way communication between firebase and our app.
+     * This method is called automatically everytime there is a change 
+     * to the users authentication. (he logs in or logs out)
+     */
+    this.unsubscribe = this.props.firebase.auth.onAuthStateChanged( async authUser => {
       if (authUser) {
-        this.setState({ authUser });
-        // this.props.globalState.openFirestoreConnection(authUser.uid);
+        // Fetch the rest of the user details from the database
+        try {
+          const dbUser = await this.props.firebase.getUser(authUser.uid);
 
-        const dbUser = this.props.firebase.getUser(authUser.uid);
+          if (dbUser.exists) {
+            this.props.globalState.changeUser(dbUser.data());
+            this.props.globalState.stopLoading();
+          }
 
-        this.props.globalState.changeUser(dbUser);
-
-        this.props.globalState.stopLoading();
+        } catch (error) {
+          console.log('error: ', error);
+        }
       }
       else {
         this.setState({ authUser: null });
@@ -70,9 +58,7 @@ class App extends React.Component {
   render() {
     if (this.props.globalState.isLoading) { return this.renderAuthenticating(); }
 
-    const childProps = {
-      isAuthenticated: this.props.globalState.user ? true : false
-    };
+    const childProps = { isAuthenticated: this.props.globalState.user ? true : false };
 
     console.log('childProps passed to routes: ', childProps);
 
@@ -81,17 +67,7 @@ class App extends React.Component {
         <div>
           <Navigation isAuthenticated={childProps.isAuthenticated} />
 
-          <hr />
-
           <Routes childProps={childProps} />
-          {/* <Route exact path={ROUTES.LANDING} component={LandingPage} />
-          <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
-          <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
-          <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
-          <Route exact path={ROUTES.HOME} component={HomePage} />
-          <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
-          <Route exact path={ROUTES.ADMIN} component={AdminPage} /> */}
-
         </div>
       </Router>
     );

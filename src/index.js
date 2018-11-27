@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import './index.css';
 import * as serviceWorker from './serviceWorker';
 
 import App from './App';
 import Firebase, { FirebaseContext } from './hocs/Firebase';
 import { GlobalStateProvider } from './hocs/GlobalState';
+
+import './index.css';
 
 require('dotenv').config();
 

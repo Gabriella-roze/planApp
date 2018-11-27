@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import SignOutButton from '../SignOut';
 import * as ROUTES from '../../constants/routes';
-
-// import { AuthUserContext } from '../../hocs/Session';
 import { withGlobalState } from '../../hocs/GlobalState';
+
+import SignoutButton from '../SignoutButton';
+
 
 const Navigation = (props) => {
   console.log('props @ Navigation: ', props);
@@ -14,7 +14,7 @@ const Navigation = (props) => {
       { 
         props.isAuthenticated
           ? <NavigationAuth /> 
-          : <NavigationNonAuth /> 
+          : null 
       }
     </div>
   );
@@ -22,9 +22,6 @@ const Navigation = (props) => {
 
 const NavigationAuth = () => (
   <ul>
-    <li>
-      <Link to={ROUTES.LANDING}>Landing</Link>
-    </li>
     <li>
       <Link to={ROUTES.HOME}>Home</Link>
     </li>
@@ -35,18 +32,7 @@ const NavigationAuth = () => (
       <Link to={ROUTES.ADMIN}>Admin</Link>
     </li>
     <li>
-      <SignOutButton />
-    </li>
-  </ul>
-);
-
-const NavigationNonAuth = () => (
-  <ul>
-    <li>
-      <Link to={ROUTES.LANDING}>Landing</Link>
-    </li>
-    <li>
-      <Link to={ROUTES.SIGN_IN}>Sign In</Link>
+      <SignoutButton />
     </li>
   </ul>
 );

@@ -1,59 +1,45 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
 import { withFirebase } from '../../hocs/Firebase';
 import { withGlobalState } from '../../hocs/GlobalState';
-import * as ROUTES from '../../constants/routes';
+// import * as ROUTES from '../../constants/routes';
 
-const SignUpPage = () => (
-  <div>
-    <h1>SignUp</h1>
-    <SignUpForm />
-  </div>
-);
-
-const INITIAL_STATE = {
-  name: '',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  error: null,
-};
-
-class SignUpFormBase extends Component {
+class SignupForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { ...INITIAL_STATE };
+    this.state = { 
+      name: '',
+      email: '',
+      passwordOne: '',
+      passwordTwo: '',
+      error: null,
+    };
   }
 
+  onChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+  
   onSubmit = async (event) => {
     event.preventDefault();
     const { name, email, passwordOne } = this.state;
 
     try {
+      this.props.globalState.startLoading();
       // Create a user in the firebase - authentication system
       const authUser = await this.props.firebase.doCreateUserWithEmailAndPassword(email, passwordOne);
 
       // Create a user document in firebase - firestore database
       await this.props.firebase.createUser({ name, email, uid: authUser.user.uid });
 
-      // Update the globalState with the new user
-      this.props.globalState.changeUser({ name, email, uid: authUser.user.uid });
-
-      // Clear the form and redirect to home page
-      this.setState({ ...INITIAL_STATE });
-      this.props.history.push(ROUTES.HOME);
-
     } catch (error) {
       console.error("Error @ signup: ", error);
-      this.setState({ error });
+      this.setState({ error, passwordOne: '', passwordTwo: '' });
+      this.props.globalState.stopLoading();
     }
-  };
-
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
   };
 
   render() {
@@ -105,20 +91,15 @@ class SignUpFormBase extends Component {
   }
 }
 
-const SignUpLink = () => (
-  <p>
-    Don't have an account? <Link to={ROUTES.SIGN_UP}>Sign Up</Link>
-  </p>
-);
+// const SignUpLink = () => (
+//   <p>
+//     Don't have an account? <Link to={ROUTES.SIGN_UP}>Sign Up</Link>
+//   </p>
+// );
 
-// const SignUpForm = withRouter(withFirebase(SignUpFormBase));
-
-const SignUpForm = compose(
+export default compose(
   withRouter,
   withFirebase,
   withGlobalState
-)(SignUpFormBase);
+)(SignupForm);
 
-export default SignUpPage;
-
-export { SignUpForm, SignUpLink };

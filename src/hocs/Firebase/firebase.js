@@ -3,8 +3,10 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
 
-// import { withGlobalState } from '../GlobalState';
-
+/**
+ * Configuration for firebase. Values are taken from a .env file
+ * that is not pushed to Github.
+ */
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -30,47 +32,50 @@ class Firebase {
     this.db.settings({ timestampsInSnapshots: true });
   }
 
-  // *** Auth API ***
-
+  /**
+   * Authentication (firebase) methods
+   */
   doCreateUserWithEmailAndPassword = (email, password) =>
     this.auth.createUserWithEmailAndPassword(email, password);
 
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
 
-  doSignOut = () => { 
-    this.auth.signOut();
-  };
+  doSignOut = () => this.auth.signOut();
 
   doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
 
   doPasswordUpdate = password => this.auth.currentUser.updatePassword(password);
 
-  // *** User API ***
+  /**
+   * Database (firestore) methods
+   */
   createUser = user => {
-    return this.db.collection("users").doc(user.uid).set({
-      uid: user.uid,
-      email: user.email,
-      name: user.name
-    });
+    return this.db.collection("users").doc(user.uid)
+      .set({
+        uid: user.uid,
+        email: user.email,
+        name: user.name
+      });
   }
 
-  getUser = async (userId) => {
+  getUser = userId => {
     const docRef = this.db.collection("users").doc(userId);
 
-    try {
-      const user = await docRef.get();
+    return docRef.get();
+
+    // try {
+    //   const user = await docRef.get();
+    //   console.log('user.exists @ getUser ', user.exists);
     
-      if (user.exists) {
-        return user.data();
-      }
-      else {
-        return null;
-      }
-    } catch (error) {
-      console.log('error: ', error);
-      return null;
-    }
+    //   if (user.exists) { return user.data(); }
+
+    //   return null;  
+    // } catch (error) {
+    //   console.log('error: ', error);
+    //   return null;
+    // }
+
   }
 }
 
