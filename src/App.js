@@ -46,20 +46,10 @@ class App extends React.Component {
     this.unsubscribe();
   }
 
-  // Change to a cool loading overlay
-  renderAuthenticating() {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    )
-  }
+
 
   render() {
-    if (this.props.globalState.isLoading) { return this.renderAuthenticating(); }
-
     const childProps = { isAuthenticated: this.props.globalState.user ? true : false };
-
     console.log('childProps passed to routes: ', childProps);
 
     return (

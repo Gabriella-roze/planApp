@@ -31,6 +31,7 @@ class SigninForm extends Component {
       await this.props.firebase.doSignInWithEmailAndPassword(email, password);
 
     } catch (error) {
+      console.log('error @ signin: ', error);
       this.setState({ error });
     }
   };

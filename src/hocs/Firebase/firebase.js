@@ -43,14 +43,10 @@ class Firebase {
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
 
-  doSignInWithFacebook = () => {
-    console.log('gonna try to go with fb');
+  doSignInWithFacebook = () => 
     this.auth.signInWithPopup(this.facebookProvider)
-      .then(res => {
-        console.log('res from fb: ', res);
-      })
-      .catch(err => console.log(err))
-  }
+
+  
 
   doSignOut = () => this.auth.signOut();
 
@@ -63,11 +59,7 @@ class Firebase {
    */
   createUser = user => {
     return this.db.collection("users").doc(user.uid)
-      .set({
-        uid: user.uid,
-        email: user.email,
-        name: user.name
-      });
+      .set({ ...user });
   }
 
   getUser = userId => {
