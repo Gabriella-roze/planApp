@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import * as ROUTES from '../../constants/routes';
+import * as ROUTES from '../../routes/names';
 import { withGlobalState } from '../../hocs/GlobalState';
 
 import SignoutButton from '../SignoutButton';

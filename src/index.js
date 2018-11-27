@@ -11,6 +11,14 @@ import './index.css';
 
 require('dotenv').config();
 
+/**
+ * We are wrapping the entire <App> with the Firebase and GlobalState providers
+ * so later, at any component, we can access the context of each one by simply
+ * wrapping the component with the High Order Component (HOC) we have created.
+ *  Firebase: withFirebase(...)
+ *  GlobalState: withGlobalState(...)
+ */
+
 ReactDOM.render(
   <FirebaseContext.Provider value={new Firebase()}>
     <GlobalStateProvider>
