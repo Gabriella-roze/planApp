@@ -19,12 +19,8 @@ class GlobalStateProvider extends React.Component {
     };
   }
 
-  componentDidMount() {
-    console.log('GLOBALSTATEPROVIDER:JS: componentDidMount fired - this.state ', this.state);
-  }
-
   changeUser = (user) => {
-    console.log('GLOBALSTATEPROVIDER:JS: changing the user @ globalState with: ', user);
+    if (user === this.state.user) { return; }  
     this.setState({ user });
   }
 
