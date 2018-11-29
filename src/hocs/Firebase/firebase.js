@@ -37,16 +37,11 @@ class Firebase {
   /**
    * Authentication (firebase) methods
    */
-  doCreateUserWithEmailAndPassword = (email, password) =>
-    this.auth.createUserWithEmailAndPassword(email, password)
+  doCreateUserWithEmailAndPassword = (email, password) => this.auth.createUserWithEmailAndPassword(email, password)
 
-  doSignInWithEmailAndPassword = (email, password) =>
-    this.auth.signInWithEmailAndPassword(email, password);
+  doSignInWithEmailAndPassword = (email, password) => this.auth.signInWithEmailAndPassword(email, password);
 
-  doSignInWithFacebook = () => 
-    this.auth.signInWithPopup(this.facebookProvider)
-
-  
+  doSignInWithFacebook = () => this.auth.signInWithPopup(this.facebookProvider)
 
   doSignOut = () => this.auth.signOut();
 
@@ -57,28 +52,12 @@ class Firebase {
   /**
    * Database (firestore) methods
    */
-  createUser = user => {
-    return this.db.collection("users").doc(user.uid)
-      .set({ ...user });
-  }
+  createUser = user => this.db.collection("users").doc(user.uid).set({ ...user });
 
   getUser = userId => {
     const docRef = this.db.collection("users").doc(userId);
 
     return docRef.get();
-
-    // try {
-    //   const user = await docRef.get();
-    //   console.log('user.exists @ getUser ', user.exists);
-    
-    //   if (user.exists) { return user.data(); }
-
-    //   return null;  
-    // } catch (error) {
-    //   console.log('error: ', error);
-    //   return null;
-    // }
-
   }
 }
 
